@@ -1,0 +1,292 @@
+#!/bin/bash
+
+SERVERTYPE=""
+CURDIR=$PWD
+INSTALLLOG=$CURDIR"/$0.log"
+CORES=`cat /proc/cpuinfo | grep "processor" | wc -l`
+
+function ECHO()
+{
+    mode="\033[0m"
+    case "$1" in
+        INFO)   mode="\033[34;1m";;#bule
+        USER)   mode="\033[32;1m";;#green
+        WARN)   mode="\033[33;1m";;#yellow
+        ERROR)  mode="\033[31;1m";;#red
+        *)      mode="\033[32;1m";;#green
+    esac
+    echo -e "$mode$@\033[0m"
+    echo -e "$@" >> $INSTALLLOG
+}
+
+#Usage:exe cmd {params...}
+function exe()
+{
+    ECHO INFO "[$0]:$@"
+    $@
+    ret=$?
+    if [ $ret -ne 0 ];then
+        ECHO ERROR "[$0]:failed, cmd=$@, ret=$ret"
+        exit -3
+    fi
+    ECHO USER "[$0]:success, cmd=$@"
+}
+
+#Usage:get url {rename}
+function get()
+{
+    file=${1##*/}
+    rename=$2
+    ECHO INFO "[$0]:$@"
+    if [ ! -f $file ];then
+        rm -fr $file
+        if [ "$rename" = "" ];then
+            exe wget "$1"
+        else
+            exe wget -O "$2" "$1"
+        fi
+    fi
+    ECHO USER "[$0]:success, cmd=$@"
+}
+
+#Usage:setfastrpm
+function setrpm()
+{
+cat << "rpmforge" > /etc/yum.repos.d/rpmforge.repo
+[rpmforge]
+name = RHEL $releasever - RPMforge.net - dag
+baseurl = http://apt.sw.be/redhat/el6/en/$basearch/rpmforge
+mirrorlist = http://mirrorlist.repoforge.org/el6/mirrors-rpmforge
+enabled = 1
+protect = 0
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rpmforge-dag
+gpgcheck = 0
+rpmforge
+
+cat << "epel" > /etc/yum.repos.d/epel.repo
+[epel]
+name=Extra Packages for Enterprise Linux 6 - $basearch
+baseurl=http://download.fedoraproject.org/pub/epel/6/$basearch
+#mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
+epel
+
+}
+function setfastrpm()
+{
+    mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+    wget http://mirrors.aliyun.com/repo/Centos-6.repo -O /etc/yum.repos.d/CentOS-Base.repo
+    rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+    yum clean all
+    yum makecache
+}
+
+function init()
+{
+    setfastrpm
+    yum install -y gcc gcc-c++ glibc glibc-devel make nasm pkgconfig lib-devel openssl-devel expat-devel gettext-devel libtool zlib-devel pcre-devel yamdi unzip patch lua openssl tcl-devel expat pcre libcap flex hwloc curses curl git autoconf automake freetype-devel npm nodejs golang golang-go mercurial bzip2-devel ncurses-devel sqlite-devel p7zip pxz.x86_64
+    
+}
+
+#Usage:get url {rename}
+function get()
+{
+    file=${1##*/}
+    rename=$2
+    ECHO INFO "[$0]:$@"
+    if [ ! -f $file ];then
+        rm -fr $file
+        if [ "$rename" = "" ];then
+            exe wget "$1"
+        else
+            exe wget -O "$2" "$1"
+        fi
+    fi
+    ECHO USER "[$0]:success, cmd=$@"
+}
+
+#unzip all format zip file
+#Usage:uz file
+function uz()
+{
+    ECHO INFO "[$0]:$@"
+    ftype=`file "$1"`   # Note ' and ` is different
+    case "$ftype" in
+    "$1: Zip archive"*)
+        exe unzip "$1" ;;
+    "$1: gzip compressed"*)
+        exe tar zxvf "$1" ;;
+    "$1: bzip2 compressed"*)
+        exe tar jxvf "$1" ;;
+    "$1: xz compressed data"*)
+        exe tar xf "$1" ;;
+    "$1: 7-zip archive data"*)
+        exe 7za x "$1" ;;
+    *) echo "File $1 can not be unzip";;
+    esac
+    ECHO USER "[$0]:end, cmd=$@"
+}
+
+#Usage:remove srcdir
+function remove()
+{
+    d=$1
+    ECHO INFO "[$0]:$@"
+    if [ -d "$d" ];then
+        cd $d && make uninstall 
+        make clean
+        cd ..
+        rm -fr $d
+    fi
+    ECHO USER "[$0]:end, cmd=$@"
+}
+
+#Usage:addcron line
+function addcron()
+{
+    ECHO INFO "[$0]:$@"
+    crontab -l > /tmp/crontable
+    echo "$@" >> /tmp/crontable
+    exe crontab /tmp/crontable
+    ECHO USER "[$0]:end, cmd=$@"
+}
+
+
+function srs()
+{
+    yum -y install pcre-devel
+    get https://github.com/simple-rtmp-server/srs/archive/2.0release.zip
+    uz 2.0release.zip 
+    cd srs-2.0release/trunk && ./configure --prefix=/usr/local/srs --with-nginx --with-ssl && make -j$CORES && make install
+    cd objs/nginx-* && ./configure --prefix=/usr/local/srs/objs/nginx && make -j$CORES && make install
+}
+
+function ats()
+{
+    yum -y install pkgconfig libtool gcc make openssl tcl-devel expat pcre libcap flex hwloc lua curses curl git autoconf automake
+    get http://apache.fayea.com/trafficserver/trafficserver-5.3.1.tar.bz2
+    uz trafficserver-5.3.1.tar.bz2
+    cd trafficserver-5.3.1 && autoreconf -if && ./configure --prefix=/usr/local/ats && make -j$CORES && make install
+}
+
+
+function nginx()
+{
+    rpm -Uhv http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+    yum -y install gcc gcc-c++ glibc glibc-devel make nasm pkgconfig lib-devel openssl-devel expat-devel gettext-devel libtool zlib-devel pcre-devel yamdi unzip patch lua
+    uz nginx-rtmp-inst.tar.gz
+    uz nginx_mod_h264_streaming-2.2.7.tar.gz
+    uz nginx-rtmp-module-master.zip
+    uz ngx_cache_purge-master.zip
+    uz LuaJIT-2.0.2.tar.gz
+    cd LuaJIT-2.0.2 && make -j$CORES && make install && cd $CURDIR
+    uz ngx_devel_kit-master.zip
+    uz lua-nginx-module-master.zip
+    export LUAJIT_LIB=/usr/local/lib 
+    export LUAJIT_INC=/usr/local/include/luajit-2.0
+    uz nginx-1.9.3.tar.gz
+    cd nginx_mod_h264_streaming-2.2.7
+    patch -p1 < ../nginx_mod_h264_streaming-2.2.7.patch
+    cd ../nginx-1.9.3
+
+    ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_flv_module --with-http_mp4_module --add-module=../nginx-rtmp-module-master --add-module=../nginx_mod_h264_streaming-2.2.7 --add-module=../ngx_cache_purge-master --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" --add-module=../ngx_devel_kit-master --add-module=../lua-nginx-module-master --with-debug
+    make -j$CORES && make install
+    mkdir -p /usr/local/nginx/html/nginx-rtmp-module
+    cp $CURDIR/nginx-rtmp-module-master/test/ /usr/local/nginx/html/nginx-rtmp-module/test -r
+    cp $CURDIR/nginx-rtmp-module-master/stat.xsl /usr/local/nginx/html/nginx-rtmp-module/
+    cp $CURDIR/nginx /etc/init.d/ && chmod a+x /etc/init.d/nginx && echo "/etc/init.d/nginx start" >> /etc/rc.local
+}
+
+function python()
+{
+    yum -y groupinstall "Development tools"
+    yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel
+    make src && cd src
+    wget --no-check-certificate https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tar.xz
+    tar xf Python-2.7.9.tar.xz
+    cd Python-2.7.9
+    ./configure --prefix=/usr/local
+    make && make altinstall
+    ln -s /usr/local/bin/python2.7 /usr/local/bin/python
+
+}
+
+function apprtc()
+{
+    yum -y install git npm nodejs golang golang-go mercurial
+    npm -g install grunt-cli
+
+#install apprtc
+    git clone https://github.com/webrtc/apprtc.git
+    cd apprtc
+    npm install
+    grunt build
+    grunt
+    cd
+#install Collider
+    cd $CURDIR/apprtc/src
+    echo 'export COLLIDER_ROOT=$PWD/collider' >> ~/.bash_profile
+    echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
+    echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bash_profile
+    source  ~/.bash_profile
+    mkdir -p $GOPATH/src
+    ln -s $CURDIR/apprtc/src/collider/collider $GOPATH/src/
+    ln -s $CURDIR/apprtc/src/collider/collidermain $GOPATH/src/
+    ln -s $CURDIR/apprtc/src/collider/collidertest $GOPATH/src/
+    cd $CURDIR/apprtc/src/collider
+    
+    go get code.google.com/p/go.net/websocket
+    go install collidermain
+    cd
+
+#install turnserver
+    get http://turnserver.open-sys.org/downloads/v4.4.5.4/turnserver-4.4.5.4-CentOS6.6-x86_64.tar.gz 
+    uz turnserver-4.4.5.4-CentOS6.6-x86_64.tar.gz
+    cd turnserver-4.4.5.4
+    ./install.sh
+
+}
+
+function ffmpeg()
+{
+    yum -y install gcc gcc-c++ glibc glibc-devel make libtool openssl-devel freetype-devel pkgconfig patch
+    uz ffmpeg-inst.tar.gz
+    uz yasm-1.3.0.tar.gz
+    uz fdk-aac-0.1.4.tar.gz
+    uz rtmpdump-2.3.tgz
+    uz last_x264.tar.bz2
+    uz ffmpeg-2.7.1.tar.bz2
+    cd yasm-1.3.0 && ./configure && make -j$CORES && make install && cd $CURDIR
+    cd fdk-aac-0.1.4 && ./autogen.sh && ./configure --enable-shared && make -j$CORES && make install && cd $CURDIR
+    cd x264-snapshot-20150705-2245 && ./configure --enable-shared && make -j$CORES && make install && cd $CURDIR
+    cd rtmpdump-2.3 && cd librtmp &&make -j$CORES && make install && cd $CURDIR
+    echo "/usr/local/lib" >> /etc/ld.so.conf && ldconfig
+    cd ffmpeg-2.7.1 && patch -p1 < ../ffmpeg-2.7.1.patch && ./configure --enable-gpl --enable-postproc --enable-pthreads  --enable-nonfree --enable-shared --enable-libx264 --enable-libfdk-aac --enable-libfreetype --enable-librtmp --enable-network --enable-protocol=tcp --enable-demuxer=rtsp --enable-muxer=rtsp --prefix=/usr/local/ffmpeg/2.7.1 --extra-ldflags="-L/usr/local/lib" --extra-cflags="-I/usr/local/include" --extra-libs="-lrtmp" && make -j$CORES && make install && cd $CURDIR
+    echo "/usr/local/ffmpeg/2.7.1/lib" >> /etc/ld.so.conf && ldconfig
+    echo 'PATH=/usr/local/ffmpeg/2.7.1/bin:$PATH' >> /etc/bashrc && source /etc/bashrc
+}
+
+ECHO "\n`date`\n######install######\n"
+ECHO INFO "install:$0 $@"
+ECHO INFO "log=$INSTALLLOG"
+if [ "$1" != "" ];then
+    SERVERTYPE=$1
+fi
+case "$SERVERTYPE" in
+
+    init)   init;;
+    srs)    srs;;
+    ats)    ats;;
+    nginx)  nginx;;
+    python) python;;
+    apprtc) apprtc;;
+    ffmpeg) ffmpeg;;
+    *)      echo "Usage: {init|srs|ats|nginx|apprtc|python|ffmpeg} " >&2
+            exit 1
+            ;;
+esac
+ECHO INFO"install end:$0!"
+
