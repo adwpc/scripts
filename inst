@@ -194,7 +194,7 @@ function nginx()
     cd ../nginx-1.8.0
     patch -p1 < ../nginx_tcp_proxy_module-master/tcp.patch
 
-    ./configure --prefix=/home/wpc/nrm --with-http_ssl_module --with-http_flv_module --with-http_mp4_module --add-module=../nginx-rtmp-module-master --add-module=../nginx_mod_h264_streaming-2.2.7 --add-module=../ngx_cache_purge-master --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" --add-module=../ngx_devel_kit-master --add-module=../lua-nginx-module-master --with-debug --add-module=../nginx_tcp_proxy_module-master
+    ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_flv_module --with-http_mp4_module --add-module=../nginx-rtmp-module-master --add-module=../nginx_mod_h264_streaming-2.2.7 --add-module=../ngx_cache_purge-master --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" --add-module=../ngx_devel_kit-master --add-module=../lua-nginx-module-master --with-debug --add-module=../nginx_tcp_proxy_module-master
     make -j$CORES && make install
     mkdir -p /usr/local/nginx/html/nginx-rtmp-module
     cp $CURDIR/nginx-rtmp-module-master/test/ /usr/local/nginx/html/nginx-rtmp-module/test -r
