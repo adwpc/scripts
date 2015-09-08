@@ -188,6 +188,7 @@ function nginx()
     export LUAJIT_LIB=/usr/local/lib 
     export LUAJIT_INC=/usr/local/include/luajit-2.0
     uz nginx-1.8.0.tar.gz
+    uz nginx_tcp_proxy_module-master.zip
     cd nginx_mod_h264_streaming-2.2.7
     patch -p1 < ../nginx_mod_h264_streaming-2.2.7.patch
     cd ../nginx-1.8.0
