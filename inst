@@ -1,4 +1,6 @@
 #!/bin/bash
+#adamwangpc
+#it will change your libs and tools, be careful!
 
 SERVERTYPE=""
 CURDIR=$PWD
@@ -271,6 +273,13 @@ function ffmpeg()
     echo 'PATH=/usr/local/ffmpeg/2.7.1/bin:$PATH' >> /etc/bashrc && source /etc/bashrc
 }
 
+function redis()
+{
+    get http://download.redis.io/releases/redis-3.0.4.tar.gz
+    uz redis-3.0.4.tar.gz
+    cd redis-3.0.4
+    make PREFIX=/usr/local/redis install -j$CORE
+}
 ECHO "\n`date`\n######install######\n"
 ECHO INFO "install:$0 $@"
 ECHO INFO "log=$INSTALLLOG"
@@ -286,7 +295,8 @@ case "$SERVERTYPE" in
     python) python;;
     apprtc) apprtc;;
     ffmpeg) ffmpeg;;
-    *)      echo "Usage: {init|srs|ats|nginx|apprtc|python|ffmpeg} " >&2
+    redis) redis;;
+    *)      echo "Usage: {init|srs|ats|nginx|apprtc|python|ffmpeg|redis} " >&2
             exit 1
             ;;
 esac
