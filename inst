@@ -168,7 +168,7 @@ function srs()
 
 function ats()
 {
-    yum -y install pkgconfig libtool gcc make openssl tcl-devel expat pcre libcap flex hwloc lua curses curl git autoconf automake
+    yum -y install pkgconfig libtool gcc gcc-g++ make openssl tcl-devel expat pcre libcap flex hwloc lua curses curl git autoconf automake
     get http://apache.fayea.com/trafficserver/trafficserver-5.3.1.tar.bz2
     uz trafficserver-5.3.1.tar.bz2
     cd trafficserver-5.3.1 && autoreconf -if && ./configure --prefix=/usr/local/ats && make -j$CORES && make install
@@ -202,6 +202,9 @@ function nginx()
     cp $CURDIR/nginx-rtmp-module-master/test/ /usr/local/nginx/html/nginx-rtmp-module/test -r
     cp $CURDIR/nginx-rtmp-module-master/stat.xsl /usr/local/nginx/html/nginx-rtmp-module/
     cp $CURDIR/nginx /etc/init.d/ && chmod a+x /etc/init.d/nginx && echo "/etc/init.d/nginx start" >> /etc/rc.local
+    uz lua-resty-redis-master.zip
+    cp -rf lua-resty-redis-master/lib/ /usr/local/nginx/
+
 }
 
 function python()
