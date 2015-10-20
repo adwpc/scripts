@@ -168,7 +168,7 @@ function srs()
 
 function ats()
 {
-    yum -y install pkgconfig libtool gcc gcc-g++ make openssl tcl-devel expat pcre libcap flex hwloc lua curses curl git autoconf automake
+    yum -y install pkgconfig libtool gcc gcc-c++ make openssl tcl-devel expat pcre libcap flex hwloc lua curses curl git autoconf automake
     get http://apache.fayea.com/trafficserver/trafficserver-5.3.1.tar.bz2
     uz trafficserver-5.3.1.tar.bz2
     cd trafficserver-5.3.1 && autoreconf -if && ./configure --prefix=/usr/local/ats && make -j$CORES && make install
