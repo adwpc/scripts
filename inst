@@ -186,13 +186,14 @@ function nginx()
     cd LuaJIT-2.0.2 && make -j$CORES && make install && cd $CURDIR
     uz ngx_devel_kit-master.zip
     uz lua-nginx-module-master.zip
+    uz nginx_upstream_check_module-master.zip
     export LUAJIT_LIB=/usr/local/lib 
     export LUAJIT_INC=/usr/local/include/luajit-2.0
     uz nginx-1.8.0.tar.gz
     cd nginx_mod_h264_streaming-2.2.7
     patch -p1 < ../nginx_mod_h264_streaming-2.2.7.patch
     cd ../nginx-1.8.0
-    uz nginx_upstream_check_module-master.zip
+
     patch -p1 < ../nginx_upstream_check_module-master/check_1.7.5+.patch 
     ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_flv_module --with-http_mp4_module --add-module=../nginx-rtmp-module-master --add-module=../nginx_mod_h264_streaming-2.2.7 --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" --add-module=../ngx_devel_kit-master --add-module=../lua-nginx-module-master --add-module=../nginx_upstream_check_module-master --with-debug
     make -j$CORES && make install
