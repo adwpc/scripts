@@ -89,7 +89,7 @@ function setfastrpm()
 function init()
 {
     setfastrpm
-    yum install -y gcc gcc-c++ glibc glibc-devel make nasm pkgconfig lib-devel openssl-devel expat-devel gettext-devel libtool zlib-devel pcre-devel yamdi unzip patch lua openssl tcl-devel expat pcre libcap flex hwloc curses curl git autoconf automake freetype-devel npm nodejs golang golang-go mercurial bzip2-devel ncurses-devel sqlite-devel p7zip pxz.x86_64
+    yum install -y gcc gcc-c++ glibc glibc-devel bzip2 make nasm pkgconfig lib-devel openssl-devel expat-devel gettext-devel libtool zlib-devel pcre-devel yamdi unzip patch lua openssl tcl-devel expat pcre libcap flex hwloc curses curl git autoconf automake freetype-devel npm nodejs golang golang-go mercurial bzip2-devel ncurses-devel sqlite-devel p7zip pxz.x86_64
     
 }
 
@@ -258,7 +258,7 @@ function apprtc()
 
 function ffmpeg()
 {
-    yum -y install gcc gcc-c++ glibc glibc-devel make libtool openssl-devel freetype-devel pkgconfig patch
+    yum -y install gcc gcc-c++ glibc glibc-devel make libtool openssl-devel freetype-devel pkgconfig patch bzip2
     uz ffmpeg-inst.tar.gz
     uz yasm-1.3.0.tar.gz
     uz fdk-aac-0.1.4.tar.gz
