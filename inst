@@ -282,6 +282,15 @@ function redis()
     cd redis-3.0.4
     make PREFIX=/usr/local/redis install -j$CORE
 }
+function git()
+{
+    yum -y remove git
+    yum -y install autoconf curl curl-devel zlib-devel openssl-devel perl cpio expat-devel gettext-devel gcc perl-ExtUtils-MakeMaker
+    wget https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz
+    uz git-1.9.4.tar.gz
+    cd git-1.9.4 && autoconf && ./configure && make -j$CORES && make install && cd -
+}
+
 ECHO "\n`date`\n######install######\n"
 ECHO INFO "install:$0 $@"
 ECHO INFO "log=$INSTALLLOG"
@@ -297,8 +306,10 @@ case "$SERVERTYPE" in
     python) python;;
     apprtc) apprtc;;
     ffmpeg) ffmpeg;;
-    redis) redis;;
-    *)      echo "Usage: {init|srs|ats|nginx|apprtc|python|ffmpeg|redis} " >&2
+    redis)  redis;;
+	git)    git;;
+    *)      echo "Usage: {init|srs|ats|nginx|apprtc|python|ffmpeg|redis|git}" >&2
+            echo "tested in centos 6.x" >&2
             exit 1
             ;;
 esac
