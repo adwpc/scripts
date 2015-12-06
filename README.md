@@ -1,11 +1,9 @@
 # scripts
-
-#install script,call init before install something
-#Usage:
-./inst {init|srs|ats|nginx|apprtc|python|ffmpeg}
+# test in centos6.x
+# Usage:
+./inst {srs|ats|nginx|apprtc|python|ffmpeg|redis|git|docker}
 
 for example:
-./inst init
 ./inst srs
 ./inst ats
 ./inst ...

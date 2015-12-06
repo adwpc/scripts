@@ -87,12 +87,6 @@ function setfastrpm()
     yum makecache
 }
 
-function init()
-{
-    setfastrpm
-    yum install -y gcc gcc-c++ glibc glibc-devel bzip2 make nasm pkgconfig lib-devel openssl-devel expat-devel gettext-devel libtool zlib-devel pcre-devel yamdi unzip patch lua openssl tcl-devel expat pcre libcap flex hwloc curses curl git autoconf automake freetype-devel npm nodejs golang golang-go mercurial bzip2-devel ncurses-devel sqlite-devel p7zip pxz.x86_64
-    
-}
 
 #Usage:get url {rename}
 function get()
@@ -313,7 +307,6 @@ if [ "$1" != "" ];then
     OBJ=$1
 fi
 case "$OBJ" in
-    init)   init;;
     srs)    srs;;
     ats)    ats;;
     nginx)  nginx;;
@@ -323,7 +316,7 @@ case "$OBJ" in
     redis)  redis;;
 	git)    git;;
 	docker) docker;;
-    *)      echo "Usage: {init|srs|ats|nginx|apprtc|python|ffmpeg|redis|git|docker}" >&2
+    *)      echo "Usage: {srs|ats|nginx|apprtc|python|ffmpeg|redis|git|docker}" >&2
             echo "tested in centos 6.x" >&2
             exit 1
             ;;
