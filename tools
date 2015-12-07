@@ -1,0 +1,61 @@
+#!/bin/bash
+#adamwangpc
+
+OBJ=""
+CURDIR=$PWD
+TOOLSLOG=$CURDIR"/$0.log"
+
+function ECHO()
+{
+    mode="\033[0m"
+    case "$1" in
+        INFO)   mode="\033[34;1m";;#bule
+        USER)   mode="\033[32;1m";;#green
+        WARN)   mode="\033[33;1m";;#yellow
+        ERROR)  mode="\033[31;1m";;#red
+        *)      mode="\033[32;1m";;#green
+    esac
+    echo -e "$mode$@\033[0m"
+    echo -e "$@" >> $TOOLSLOG
+}
+
+#Usage:exe cmd {params...}
+function exe()
+{
+    ECHO INFO "[$0]:$@"
+    $@
+    ret=$?
+    if [ $ret -ne 0 ];then
+        ECHO ERROR "[$0]:failed, cmd=$@, ret=$ret"
+        exit -3
+    fi
+    ECHO USER "[$0]:success, cmd=$@"
+}
+
+
+function toluac(){
+for file in `find $1 -name "*.lua"`
+do
+	echo $file
+    if [ -f $file ] 
+    then
+        exe luac -o "$file"c $file
+    fi
+done
+}
+
+ECHO "\n`date`\n######tools######\n"
+ECHO INFO "tools:$0 $@"
+ECHO INFO "log=$TOOLSLOG"
+if [ "$1" != "" ];then
+    OBJ=$1
+fi
+case "$OBJ" in
+    toluac)    toluac $2;;
+    *)      echo "Usage: {toluac}" >&2
+            echo "tested in centos 6.x" >&2
+            exit 1
+            ;;
+esac
+ECHO INFO"tools end:$0!"
+
