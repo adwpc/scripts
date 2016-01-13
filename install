@@ -196,8 +196,6 @@ function nginx()
     cp $CURDIR/nginx-rtmp-module-master/test/ /usr/local/nginx/html/nginx-rtmp-module/test -r
     cp $CURDIR/nginx-rtmp-module-master/stat.xsl /usr/local/nginx/html/nginx-rtmp-module/
     cp $CURDIR/nginx /etc/init.d/ && chmod a+x /etc/init.d/nginx && echo "/etc/init.d/nginx start" >> /etc/rc.local
-    uz lua-resty-redis-master.zip
-    cp -rf lua-resty-redis-master/lib/ /usr/local/nginx/
 
 }
 
@@ -209,7 +207,7 @@ function python()
     wget --no-check-certificate https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tar.xz
     tar xf Python-2.7.9.tar.xz
     cd Python-2.7.9
-    ./configure --prefix=/usr/local
+    ./configure --prefix=/usr/local --enable-shared
     make && make altinstall
     ln -s /usr/local/bin/python2.7 /usr/local/bin/python
 
@@ -314,8 +312,8 @@ case "$OBJ" in
     apprtc) apprtc;;
     ffmpeg) ffmpeg;;
     redis)  redis;;
-	git)    git;;
-	docker) docker;;
+    git)    git;;
+    docker) docker;;
     *)      echo "Usage: {srs|ats|nginx|apprtc|python|ffmpeg|redis|git|docker}" >&2
             echo "tested in centos 6.x" >&2
             exit 1
