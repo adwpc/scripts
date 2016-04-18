@@ -1,0 +1,154 @@
+#!/bin/bash
+#adamwangpc
+#it will update your packages !
+
+OBJ=""
+CURDIR=$PWD
+INSTALLLOG=$CURDIR"/$0.log"
+CORES=`cat /proc/cpuinfo | grep "processor" | wc -l`
+
+function ECHO()
+{
+    mode="\033[0m"
+    case "$1" in
+        INFO)   mode="\033[34;1m";;#bule
+        USER)   mode="\033[32;1m";;#green
+        WARN)   mode="\033[33;1m";;#yellow
+        ERROR)  mode="\033[31;1m";;#red
+        *)      mode="\033[32;1m";;#green
+    esac
+    echo -e "$mode$@\033[0m"
+    echo -e "$@" >> $INSTALLLOG
+}
+
+#Usage:exe cmd {params...}
+function exe()
+{
+    ECHO INFO "[$0]:$@"
+    $@
+    ret=$?
+    if [ $ret -ne 0 ];then
+        ECHO ERROR "[$0]:failed, cmd=$@, ret=$ret"
+        exit -3
+    fi
+    ECHO USER "[$0]:success, cmd=$@"
+}
+
+#Usage:get url {rename}
+function get()
+{
+    file=${1##*/}
+    rename=$2
+    ECHO INFO "[$0]:$@"
+    if [ ! -f $file ];then
+        rm -fr $file
+        if [ "$rename" = "" ];then
+            exe wget "$1"
+        else
+            exe wget -O "$2" "$1"
+        fi
+    fi
+    ECHO USER "[$0]:success, cmd=$@"
+}
+
+#Usage:get url {rename}
+function get()
+{
+    file=${1##*/}
+    rename=$2
+    ECHO INFO "[$0]:$@"
+    if [ ! -f $file ];then
+        rm -fr $file
+        if [ "$rename" = "" ];then
+            exe wget "$1"
+        else
+            exe wget -O "$2" "$1"
+        fi
+    fi
+    ECHO USER "[$0]:success, cmd=$@"
+}
+
+#unzip all format compressed file
+#Usage:uz file
+function uz()
+{
+    ECHO INFO "[$0]:$@"
+    ftype=`file "$1"`   # Note ' and ` is different
+    case "$ftype" in
+    "$1: Zip archive"*)
+        exe unzip "$1" ;;
+    "$1: gzip compressed"*)
+        exe tar zxvf "$1" ;;
+    "$1: bzip2 compressed"*)
+        exe tar jxvf "$1" ;;
+    "$1: xz compressed data"*)
+        exe tar xf "$1" ;;
+    "$1: 7-zip archive data"*)
+        exe 7za x "$1" ;;
+    *) echo "File $1 can not be unzip";;
+    esac
+    ECHO USER "[$0]:end, cmd=$@"
+}
+
+#Usage:remove srcdir
+function remove()
+{
+    d=$1
+    ECHO INFO "[$0]:$@"
+    if [ -d "$d" ];then
+        cd $d && make uninstall 
+        make clean
+        cd ..
+        rm -fr $d
+    fi
+    ECHO USER "[$0]:end, cmd=$@"
+}
+
+#Usage:addcron line
+function addcron()
+{
+    ECHO INFO "[$0]:$@"
+    crontab -l > /tmp/crontable
+    echo "$@" >> /tmp/crontable
+    exe crontab /tmp/crontable
+    ECHO USER "[$0]:end, cmd=$@"
+}
+
+function janus()
+{
+    sudo apt-get -y install aptitude
+    sudo aptitude -y install libmicrohttpd-dev libjansson-dev libnice-dev libssl-dev libsofia-sip-ua-dev libglib2.0-dev libopus-dev libogg-dev pkg-config gengetopt libtool automake
+    wget https://github.com/cisco/libsrtp/archive/v1.5.0.tar.gz && tar xvf v1.5.0.tar.gz && cd libsrtp-1.5.0
+    ./configure --prefix=/usr --enable-openssl && make libsrtp.so && sudo make install
+    cd ..
+    git clone https://github.com/sctplab/usrsctp && cd usrsctp
+    ./bootstrap && ./configure --prefix=/usr && make -j$CORES && sudo make install
+    cd ..
+    git clone https://github.com/warmcat/libwebsockets && cd libwebsockets
+    mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" .. && make -j$CORES && sudo make install
+    cd ../..
+    git clone https://github.com/alanxz/rabbitmq-c && cd rabbitmq-c && git submodule init && git submodule update && autoreconf -i && ./configure --prefix=/usr && make -j$CORES && sudo make install
+    cd ..
+    git clone https://github.com/meetecho/janus-gateway.git && cd janus-gateway && ./autogen.sh && ./configure --prefix=/usr/local/janus
+    make -j$CORES
+    make -j$CORES && sudo make install && sudo make configs
+#    sudo ln -sf /usr/local/lib/librabbitmq.so   /usr/lib/librabbitmq.so.4
+#    sudo ln -sf /usr/local/lib/libsrtp.so  /usr/lib/libsrtp.so
+#    sudo ln -sf /usr/local/lib/libusrsctp.so /usr/lib/libusrsctp.so.1
+}
+
+ECHO "\n`date`\n######install######\n"
+ECHO INFO "install:$0 $@"
+ECHO INFO "log=$INSTALLLOG"
+if [ "$1" != "" ];then
+    OBJ=$1
+fi
+case "$OBJ" in
+    janus) janus;;
+    *)      echo "Usage: {janus}" >&2
+            echo "tested in ubuntu14.04" >&2
+            exit 1
+            ;;
+esac
+ECHO INFO"install end:$0!"
+
