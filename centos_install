@@ -263,7 +263,7 @@ function ffmpeg()
     cd x264-snapshot-20160412-2245 && ./configure --enable-shared && make -j$CORES && make install && cd $CURDIR
     cd rtmpdump-2.3 && cd librtmp && make -j$CORES && make install && sudo cp librtmp/librtmp.pc /usr/share/pkgconfig/ cd $CURDIR
     echo "/usr/local/lib" >> /etc/ld.so.conf && ldconfig
-    cd ffmpeg-2.8.5 && ./configure --enable-gpl --enable-postproc --enable-pthreads  --enable-nonfree --enable-shared --enable-libx264 --enable-libfdk-aac --enable-libfreetype --enable-network --enable-protocol=tcp --enable-demuxer=rtsp --enable-muxer=rtsp --enable-ffplay --enable-librtmp --prefix=/usr/local/ffmpeg/2.8.5 --extra-ldflags="-L/usr/local/lib" --extra-cflags="-I/usr/local/include" --extra-libs="-lrtmp" && make -j$CORES && make install && cd $CURDIR
+    cd ffmpeg-2.8.5 && ./configure --enable-gpl --enable-postproc --enable-pthreads  --enable-nonfree --enable-shared --enable-libx264 --enable-libfdk-aac --enable-libfreetype --enable-network --enable-protocol=tcp --enable-demuxer=rtsp --enable-muxer=rtsp --enable-ffplay --enable-librtmp --prefix=/usr/local/ffmpeg/2.8.5  && make -j$CORES && make install && cd $CURDIR
     echo "/usr/local/ffmpeg/2.8.5/lib" >> /etc/ld.so.conf && ldconfig
     echo 'PATH=/usr/local/ffmpeg/2.8.5/bin:$PATH' >> /etc/bashrc && source /etc/bashrc
 }
