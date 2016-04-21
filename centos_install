@@ -182,6 +182,9 @@ function nginx()
     uz ngx_devel_kit-master.zip
     uz lua-nginx-module-master.zip
     uz nginx_upstream_check_module-master.zip
+    uz headers-more-nginx-module-master.zip
+    uz set-misc-nginx-module-master.zip
+
     export LUAJIT_LIB=/usr/local/lib 
     export LUAJIT_INC=/usr/local/include/luajit-2.0
     uz nginx-1.8.0.tar.gz
@@ -190,7 +193,7 @@ function nginx()
     cd ../nginx-1.8.0
 
     patch -p1 < ../nginx_upstream_check_module-master/check_1.7.5+.patch 
-    ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_flv_module --with-http_mp4_module --add-module=../nginx-rtmp-module-master --add-module=../nginx_mod_h264_streaming-2.2.7 --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" --add-module=../ngx_devel_kit-master --add-module=../lua-nginx-module-master --add-module=../nginx_upstream_check_module-master --with-debug
+    ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_flv_module --with-http_mp4_module --add-module=../nginx-rtmp-module-master --add-module=../nginx_mod_h264_streaming-2.2.7 --with-ld-opt="-Wl,-rpath,$LUAJIT_LIB" --add-module=../ngx_devel_kit-master --add-module=../lua-nginx-module-master --add-module=../nginx_upstream_check_module-master --add-module=../set-misc-nginx-module-master/ --add-module=../headers-more-nginx-module-master/ --with-debug
     make -j$CORES && make install
     mkdir -p /usr/local/nginx/html/nginx-rtmp-module
     cp $CURDIR/nginx-rtmp-module-master/test/ /usr/local/nginx/html/nginx-rtmp-module/test -r
