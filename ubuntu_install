@@ -249,7 +249,7 @@ case "$OBJ" in
     janus) janus;;
     ffmpeg) ffmpeg;;
     kms) kms;;
-    *)      echo "Usage: {janus|ffmpeg}" >&2
+    *)      echo "Usage: {janus|ffmpeg|kms}" >&2
             echo "tested in ubuntu14.04" >&2
             exit 1
             ;;
