@@ -159,8 +159,10 @@ function ffmpeg()
 
 function kms()
 {
-    mkdir -p kmsbuild && cd kmsbuild
+    sudo apt-get -y update
+    sudo apt-get -y upgrade
     sudo apt-get -y install g++ git cmake
+    mkdir -p kmsbuild && cd kmsbuild
     CURDIR=$CURDIR/kmsbuild
     
     git clone https://github.com/Kurento/kms-cmake-utils.git
@@ -180,7 +182,6 @@ function kms()
     cd jsoncpp && git checkout kms6.5.0
     mkdir -p build && cd build && cmake .. -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON && sudo make install -j$CORE
     cd $CURDIR
-    
     sudo apt-get install -y libboost1.55-all-dev
     git clone https://github.com/Kurento/kms-jsonrpc.git
     cd kms-jsonrpc && mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
@@ -201,6 +202,7 @@ function kms()
     git clone https://github.com/Kurento/kms-core.git
     cd kms-core && git checkout 6.5.0
     mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules -DKURENTO_MODULES_DIR=/usr/local/share/kurento/modules && sudo make install -j$CORE
+    sudo mkdir -p /usr/share/kurento/modules && sudo cp ./src/server/kmd/core.kmd.json /usr/share/kurento/modules
     cd $CURDIR
     
     git clone https://github.com/Kurento/usrsctp.git
@@ -221,6 +223,7 @@ function kms()
     git clone https://github.com/Kurento/kms-elements.git
     cd kms-elements && git checkout 6.5.0
     mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules -DKURENTO_MODULES_DIR=/usr/local/share/kurento/modules && sudo make install -j$CORE
+    sudo cp ./src/server/kmd/elements.kmd.json /usr/share/kurento/modules
     cd $CURDIR
     
     sudo apt-get install -y libopencv-dev
@@ -236,7 +239,7 @@ function kms()
     cd $CURDIR
     
     sudo sh -c "echo /usr/local/lib/x86_64-linux-gnu >> /etc/ld.so.conf.d/x86_64-linux-gnu.conf" && sudo ldconfig
-    sudo mkdir -p /etc/kurento/ && sudo cp ../kurento.conf.json /etc/kurento/kurento.conf.json
+    sudo mkdir -p /etc/kurento/ && sudo cp ./kurento-media-server/kurento.conf.json /etc/kurento/kurento.conf.json
 }
 
 ECHO "\n`date`\n######install######\n"
