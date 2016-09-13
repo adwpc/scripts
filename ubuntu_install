@@ -182,7 +182,7 @@ function kms()
     cd jsoncpp && git checkout kms6.5.0
     mkdir -p build && cd build && cmake .. -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON && sudo make install -j$CORE
     cd $CURDIR
-    sudo apt-get install -y libboost1.55-all-dev
+    sudo apt-get install -y libboost1.55-all-dev pkg-config
     git clone https://github.com/Kurento/kms-jsonrpc.git
     cd kms-jsonrpc && mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
     cd $CURDIR

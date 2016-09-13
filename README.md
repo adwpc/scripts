@@ -3,16 +3,16 @@
 # 脚本会更新一些包，并且默认安装软件到“/usr/local”下！
 
 # install
-./centos_install {srs|ats|nginx|apprtc|python|ffmpeg|redis|git|docker}  
+sudo bash centos_install {srs|ats|nginx|apprtc|python|ffmpeg|redis|git|docker}  
 for example:  
-./centos_install srs
+sudo bash centos_install srs
 
-./ubuntu_install {janus}  
+sudo bash ubuntu_install {janus|ffmpeg|kms}  
 for example:  
-./centos_install janus
+sudo bash ubuntu_install janus
 
 
 # build lua to luac
-./tools {toluac}  
+sudo bash tools {toluac} dir 
 for example:  
-./tools toluac .
+sudo bash tools toluac .
