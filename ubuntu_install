@@ -116,8 +116,8 @@ function addcron()
 
 function janus()
 {
-    sudo apt-get -y install aptitude
-    sudo aptitude -y install libmicrohttpd-dev libjansson-dev libnice-dev libssl-dev libsofia-sip-ua-dev libglib2.0-dev libopus-dev libogg-dev pkg-config gengetopt libtool automake
+    sudo apt-get install -y aptitude
+    sudo aptitude install -y libmicrohttpd-dev libjansson-dev libnice-dev libssl-dev libsofia-sip-ua-dev libglib2.0-dev libopus-dev libogg-dev pkg-config gengetopt libtool automake
     wget https://github.com/cisco/libsrtp/archive/v1.5.0.tar.gz && tar xvf v1.5.0.tar.gz && cd libsrtp-1.5.0
     ./configure --prefix=/usr --enable-openssl && make libsrtp.so && sudo make install && cd $CURDIR
     git clone https://github.com/sctplab/usrsctp && cd usrsctp
@@ -135,7 +135,7 @@ function janus()
 
 function ffmpeg()
 {
-    sudo apt-get install gcc g++ cmake-curses-gui libsdl-dev make libtool libssl-dev libfreetype6-dev pkg-config patch bzip2 libvpx-dev
+    sudo apt-get install -y gcc g++ cmake-curses-gui libsdl-dev make libtool libssl-dev libfreetype6-dev pkg-config patch bzip2 libvpx-dev
     uz ffmpeg-inst.tar.gz
     uz yasm-1.3.0.tar.gz
     uz fdk-aac-0.1.4.tar.gz
@@ -157,110 +157,167 @@ function ffmpeg()
 }
 
 
+#function kms()
+#{
+#    sudo apt-get -y update
+#    sudo apt-get -y upgrade
+#    sudo apt-get install -y g++ git cmake
+#    mkdir -p kmsbuild && cd kmsbuild
+#    CURDIR=$CURDIR/kmsbuild
+#
+#    git clone https://github.com/Kurento/kms-cmake-utils.git
+#    cd kms-cmake-utils && mkdir -p build && cd build && cmake .. && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    sudo apt-get install -y maven2 openjdk-7-jdk
+#    git clone https://github.com/Kurento/kurento-module-creator.git
+#    cd kurento-module-creator && mvn install
+#    sudo mkdir -p /usr/local/target
+#    sudo cp target/kurento-module-creator-jar-with-dependencies.jar /usr/local/target
+#    sudo cp scripts/kurento-module-creator /usr/local/bin
+#    sudo cp target/classes/FindKurentoModuleCreator.cmake /usr/local/share/cmake-2.8/Modules/
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/jsoncpp.git
+#    cd jsoncpp && git checkout kms6.6.0
+#    mkdir -p build && cd build && cmake .. -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON && sudo make install -j$CORE
+#    cd $CURDIR
+#    sudo apt-get install -y libboost1.55-all-dev pkg-config
+#    git clone https://github.com/Kurento/kms-jsonrpc.git
+#    cd kms-jsonrpc && mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    sudo apt-get install -y autoconf autopoint libtool bison flex gtk-doc-tools libglib2.0-dev liborc-dev
+#    git clone https://github.com/Kurento/gstreamer.git
+#    cd gstreamer && git checkout kms6.6.0
+#    ./autogen.sh && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/gst-plugins-base.git
+#    cd gst-plugins-base && git checkout kms6.6.0
+#    ./autogen.sh && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/gst-plugins-bad.git
+#    cd gst-plugins-bad && git checkout kms6.6.0
+#    ./autogen.sh && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/gst-plugins-good.git
+#    cd gst-plugins-good && git checkout kms6.6.0
+#    ./autogen.sh && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/gst-plugins-ugly.git
+#    cd gst-plugins-ugly && git checkout kms6.6.0
+#    ./autogen.sh && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/gst-libav.git
+#    cd gst-libav && git checkout kms6.6.0
+#    ./autogen.sh && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    sudo apt-get install -y uuid-dev libvpx-dev libsigc++-2.0-dev libglibmm-2.4-dev
+#    git clone https://github.com/Kurento/kms-core.git
+#    cd kms-core && git checkout 6.6.0
+#    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules -DKURENTO_MODULES_DIR=/usr/local/share/kurento/modules && sudo make install -j$CORE
+#    sudo mkdir -p /usr/share/kurento/modules && sudo cp ./src/server/kmd/core.kmd.json /usr/share/kurento/modules
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/usrsctp.git
+#    cd usrsctp && ./bootstrap && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/openwebrtc-gst-plugins.git
+#    cd openwebrtc-gst-plugins && git checkout kms6.6.0
+#    ./autogen.sh && ./configure && make && sudo make install
+#    cd $CURDIR
+#
+#    sudo apt-get install -y libsoup2.4-dev
+#    git clone https://github.com/Kurento/libnice.git
+#    cd libnice && git checkout 0.1.13
+#    ./autogen.sh && ./configure && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    git clone https://github.com/Kurento/kms-elements.git
+#    cd kms-elements && git checkout 6.6.0
+#    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules -DKURENTO_MODULES_DIR=/usr/local/share/kurento/modules && sudo make install -j$CORE
+#    sudo cp ./src/server/kmd/elements.kmd.json /usr/share/kurento/modules
+#    cd $CURDIR
+#
+#    sudo apt-get install -y libopencv-dev
+#    git clone https://github.com/Kurento/kms-filters.git
+#    cd kms-filters && git checkout 6.6.0
+#    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    sudo apt-get install -y libssl-dev libevent-dev
+#    git clone https://github.com/Kurento/kurento-media-server.git
+#    cd kurento-media-server && git checkout 6.6.0
+#    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
+#    cd $CURDIR
+#
+#    sudo sh -c "echo /usr/local/lib/x86_64-linux-gnu >> /etc/ld.so.conf.d/x86_64-linux-gnu.conf" && sudo ldconfig
+#    sudo mkdir -p /etc/kurento/ && sudo cp ./kurento-media-server/kurento.conf.json /etc/kurento/kurento.conf.json
+#}
+#
+
+
+#https://github.com/Kurento/doc-kurento/blob/master/static/kms_development_guide.md#install-kms-fork-libraries
 function kms()
 {
-    sudo apt-get -y update
-    sudo apt-get -y upgrade
-    sudo apt-get -y install g++ git cmake
-    mkdir -p kmsbuild && cd kmsbuild
-    CURDIR=$CURDIR/kmsbuild
+    #Install development tools
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends build-essential gdb pkg-config cmake clang debhelper valgrind git wget maven 'openjdk-[8|7]-jdk'
+    #Install development libraries for KMS
+    sudo apt-get install -y --no-install-recommends libboost-dev libboost-filesystem-dev libboost-log-dev libboost-program-options-dev libboost-regex-dev libboost-system-dev libboost-test-dev libboost-thread-dev libevent-dev libglib2.0-dev libglibmm-2.4-dev libsigc++-2.0-dev libopencv-dev
+    #Install KMS fork libraries trusty--14.04
+    REPO="trusty"
+    echo "deb http://ubuntu.kurento.org ${REPO} kms6" | sudo tee /etc/apt/sources.list.d/kurento.list
+    wget http://ubuntu.kurento.org/kurento.gpg.key -O - | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends libgstreamer1.5-dev libgstreamer-plugins-base1.5-dev gstreamer1.5-plugins-base gstreamer1.5-plugins-good gstreamer1.5-plugins-bad gstreamer1.5-plugins-ugly gstreamer1.5-libav gstreamer1.5-nice libnice-dev openwebrtc-gst-plugins-dev libvpx-dev libxml2-utils uuid-dev libsoup2.4-dev libssl-dev kmsjsoncpp-dev ffmpeg
+    #sudo apt-get install -y --no-install-recommends libgstreamer1.5-0-dbg gstreamer1.5-plugins-base-dbg gstreamer1.5-plugins-good-dbg gstreamer1.5-plugins-bad-dbg gstreamer1.5-plugins-ugly-dbg gstreamer1.5-libav-dbg libnice-dbg openwebrtc-gst-plugins-dbg kmsjsoncpp-dbg
+    #build kms
+    git clone https://github.com/Kurento/kms-omni-build.git
+    cd kms-omni-build
+    git submodule init
+    git submodule update --recursive --remote
+    cd kms-elements && git checkout 6.6.2 && cd ..
+    cd kms-filters && git checkout 6.6.2 && cd ..
+    cd kms-core && git checkout 6.6.2 && cd ..
+    cd kurento-media-server && git checkout 6.6.2 && cd ..
+    #TYPE: Debug Release RelWithDebInfo
+    TYPE=Release
+    mkdir -p build-$TYPE && cd build-$TYPE
+    cmake -DCMAKE_BUILD_TYPE=$TYPE -DCMAKE_VERBOSE_MAKEFILE=ON ..
+    make 
+#    sudo make install
+#    sudo sh -c "echo /usr/local/lib/x86_64-linux-gnu >> /etc/ld.so.conf.d/x86_64-linux-gnu.conf" && sudo ldconfig
+#    sudo mkdir -p /etc/kurento && sudo cp ../kurento-media-server/kurento.conf.json /etc/kurento/
 
-    git clone https://github.com/Kurento/kms-cmake-utils.git
-    cd kms-cmake-utils && mkdir -p build && cd build && cmake .. && sudo make install -j$CORE
-    cd $CURDIR
-
-    sudo apt-get install -y maven2 openjdk-7-jdk
-    git clone https://github.com/Kurento/kurento-module-creator.git
-    cd kurento-module-creator && mvn install
-    sudo mkdir -p /usr/local/target
-    sudo cp target/kurento-module-creator-jar-with-dependencies.jar /usr/local/target
-    sudo cp scripts/kurento-module-creator /usr/local/bin
-    sudo cp target/classes/FindKurentoModuleCreator.cmake /usr/local/share/cmake-2.8/Modules/
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/jsoncpp.git
-    cd jsoncpp && git checkout kms6.6.0
-    mkdir -p build && cd build && cmake .. -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON && sudo make install -j$CORE
-    cd $CURDIR
-    sudo apt-get install -y libboost1.55-all-dev pkg-config
-    git clone https://github.com/Kurento/kms-jsonrpc.git
-    cd kms-jsonrpc && mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
-    cd $CURDIR
-
-    sudo apt-get install -y autoconf autopoint libtool bison flex gtk-doc-tools libglib2.0-dev liborc-dev
-    git clone https://github.com/Kurento/gstreamer.git
-    cd gstreamer && git checkout kms6.6.0
-    ./autogen.sh && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/gst-plugins-base.git
-    cd gst-plugins-base && git checkout kms6.6.0
-    ./autogen.sh && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/gst-plugins-bad.git
-    cd gst-plugins-bad && git checkout kms6.6.0
-    ./autogen.sh && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/gst-plugins-good.git
-    cd gst-plugins-good && git checkout kms6.6.0
-    ./autogen.sh && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/gst-plugins-ugly.git
-    cd gst-plugins-ugly && git checkout kms6.6.0
-    ./autogen.sh && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/gst-libav.git
-    cd gst-libav && git checkout kms6.6.0
-    ./autogen.sh && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    sudo apt-get install -y uuid-dev libvpx-dev libsigc++-2.0-dev libglibmm-2.4-dev
-    git clone https://github.com/Kurento/kms-core.git
-    cd kms-core && git checkout 6.6.0
-    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules -DKURENTO_MODULES_DIR=/usr/local/share/kurento/modules && sudo make install -j$CORE
-    sudo mkdir -p /usr/share/kurento/modules && sudo cp ./src/server/kmd/core.kmd.json /usr/share/kurento/modules
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/usrsctp.git
-    cd usrsctp && ./bootstrap && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/openwebrtc-gst-plugins.git
-    cd openwebrtc-gst-plugins && git checkout kms6.6.0
-    ./autogen.sh && ./configure && make && sudo make install
-    cd $CURDIR
-
-    sudo apt-get install -y libsoup2.4-dev
-    git clone https://github.com/Kurento/libnice.git
-    cd libnice && git checkout 0.1.13
-    ./autogen.sh && ./configure && sudo make install -j$CORE
-    cd $CURDIR
-
-    git clone https://github.com/Kurento/kms-elements.git
-    cd kms-elements && git checkout 6.6.0
-    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules -DKURENTO_MODULES_DIR=/usr/local/share/kurento/modules && sudo make install -j$CORE
-    sudo cp ./src/server/kmd/elements.kmd.json /usr/share/kurento/modules
-    cd $CURDIR
-
-    sudo apt-get install -y libopencv-dev
-    git clone https://github.com/Kurento/kms-filters.git
-    cd kms-filters && git checkout 6.6.0
-    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
-    cd $CURDIR
-
-    sudo apt-get install -y libssl-dev libevent-dev
-    git clone https://github.com/Kurento/kurento-media-server.git
-    cd kurento-media-server && git checkout 6.6.0
-    mkdir -p build && cd build && cmake .. -DCMAKE_MODULE_PATH=/usr/local/share/cmake-2.8/Modules && sudo make install -j$CORE
-    cd $CURDIR
-
-    sudo sh -c "echo /usr/local/lib/x86_64-linux-gnu >> /etc/ld.so.conf.d/x86_64-linux-gnu.conf" && sudo ldconfig
-    sudo mkdir -p /etc/kurento/ && sudo cp ./kurento-media-server/kurento.conf.json /etc/kurento/kurento.conf.json
 }
+
+function clean_kms()
+{
+    for pkg in \
+      '^(kms|kurento).*' \
+      ffmpeg \
+      '^gir1.2-gst.*1.5' \
+      '^(lib)?gstreamer.*1.5.*' \
+      '^lib(nice|s3-2|srtp|usrsctp).*' \
+      '^srtp-.*' \
+      '^openh264(-gst-plugins-bad-1.5)?' \
+      '^openwebrtc-gst-plugins.*' \
+      '^libboost-?(filesystem|log|program-options|regex|system|test|thread)?-dev' \
+      '^lib(glib2.0|glibmm-2.4|opencv|sigc++-2.0|soup2.4|ssl|tesseract|vpx)-dev' \
+      uuid-dev
+    do sudo apt-get -y purge --auto-remove $pkg ; done
+
+}
+
+
 
 ECHO "\n`date`\n######install######\n"
 ECHO INFO "install:$0 $@"
@@ -272,6 +329,7 @@ case "$OBJ" in
     janus) janus;;
     ffmpeg) ffmpeg;;
     kms) kms;;
+    clean_kms) clean_kms;;
     *)      echo "Usage: {janus|ffmpeg|kms}" >&2
         echo "tested in ubuntu14.04" >&2
         exit 1
